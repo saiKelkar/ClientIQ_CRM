@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+.env
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -134,3 +135,52 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
+
+# Environment
+.env
+.venv/
+venv/
+env/
+.env.*
+
+# IDE-specific files
+.vscode/
+.idea/
+*.swp
+
+# OS-specific files
+.DS_Store        # macOS
+Thumbs.db        # Windows
+
+# Logs and cache
+*.log
+*.sqlite3
+*.db
+.cache/
+pytest_cache/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Coverage/testing
+htmlcov/
+.coverage
+.tox/
+
+# Docker
+*.pid
+*.seed
+docker-compose.override.yml
+
+# Misc
+*.bak
