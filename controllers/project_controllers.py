@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
+from websocket_manager import manager
 from models import Project
 import schemas
 
@@ -12,16 +13,21 @@ def get_project_by_id(id: int, db: Session):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Project with ID {id} not found")
     return project
 
-def create_project(project_data: schemas.ProjectCreate, db: Session):
-    new_project = Project(
-        customer_id = project_data.customer_id,
-        name = project_data.name,
-        status = project_data.status,
-        budget = project_data.budget
-    )
+async def create_project(project_data: schemas.ProjectCreate, db: Session):
+    new_project = Project(**project_data.model_dump())  # .dict() if Pydantic v1
     db.add(new_project)
     db.commit()
     db.refresh(new_project)
+
+    # Broadcast to all connected clients
+    await manager.broadcast({
+        "type": "new_project",
+        "data": {
+            "id": new_project.id,
+            "name": new_project.name,
+            "description": new_project.description
+        }
+    })
     return new_project
 
 def update_project(id: int, project_data: schemas.ProjectCreate, db: Session):

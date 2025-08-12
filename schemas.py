@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, date
 from decimal import Decimal
 from pydantic import BaseModel, EmailStr
 from enum import Enum
+from typing import Optional
 
 # Timestamp Response
 class TimestampedResponse(BaseModel):
@@ -79,8 +80,8 @@ class ProjectCreate(BaseModel):
 
 class ProjectResponse(ProjectCreate):
     id: int
-    start_date: datetime
-    end_date: datetime | None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
     class Config:
         from_attributes = True
