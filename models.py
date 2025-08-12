@@ -1,8 +1,3 @@
-"""
-SQLAlchemy ORM models for the CRM system.
-Defines database tables and their relationships
-"""
-
 from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey, DECIMAL, Date
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -16,9 +11,6 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     role = Column(Enum('admin', 'staff', name='user_roles'), nullable=False)
-
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=False)
 
     # Relationships
     deals = relationship("Deal", back_populates="owner")

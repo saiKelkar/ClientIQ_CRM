@@ -13,7 +13,12 @@ def signup(request: schemas.UserCreate, db: Session):
     if user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
     
-    new_user = models.User(name=request.name, email=request.email, password=hash_password(request.password))
+    new_user = models.User(
+        name=request.name, 
+        email=request.email, 
+        password=hash_password(request.password),
+        role=request.role
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

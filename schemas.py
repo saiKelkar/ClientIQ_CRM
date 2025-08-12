@@ -32,8 +32,6 @@ class UserResponse(BaseModel):
     id: int
     email: EmailStr
     role: UserRole
-    created_at: datetime
-    updated_at: datetime | None
 
     class Config:
         from_attributes = True
