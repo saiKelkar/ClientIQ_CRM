@@ -3,8 +3,8 @@ from fastapi import HTTPException, status
 from models import Customer
 import schemas
 
-def get_all_customers(db: Session):
-    return db.query(Customer).all()
+def get_all_customers(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(Customer).offset(skip).limit(limit).all()
 
 def get_customer_by_id(id: int, db: Session):
     customer = db.query(Customer).filter(Customer.id == id).first()

@@ -1,34 +1,35 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Sidebar from './Sidebar'
+import Topbar from './Topbar'
+import Dashboard from './Dashboard'
+import Customers from "./Customer"
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const [currentScreen, setCurrentScreen] = useState("Dashboard")
+  const [role, setRole] = useState("admin")
+  const [userName, setUserName] = useState("Sai Kelkar")
   return (
-    <>
+    <Router>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <Sidebar setCurrentScreen={ setCurrentScreen } />
+        <div className='ml-64 flex flex-col h-screen'>
+          <div className='fixed top-0 right-0 left-64 h-16 bg-gray-200 flex justify-between items-center px-6'>
+            <Topbar currentScreen={ currentScreen } role={ role } userName={ userName } />
+          </div>
+
+          <main 
+            className="mt-16 p-6 overflow-auto flex-grow bg-gray-50"
+            style={{ height: "calc(100vh - 4rem)" }}
+          >
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/customers" element={<Customers />} />
+            </Routes>
+          </main>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </Router>
   )
 }
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 import database
@@ -15,8 +15,8 @@ def get_db():
         db.close()
 
 @router.get("/", response_model=list[schemas.CustomerResponse])
-def getCustomers(db: Session = Depends(get_db)):
-    return customer_controllers.get_all_customers(db)
+def getCustomers(skip: int = Query(0, ge=0), limit: int = Query(10, ge=1), db: Session = Depends(get_db)):
+    return customer_controllers.get_all_customers(db, skip, limit)
 
 @router.get("/{id}", response_model=schemas.CustomerResponse)
 def getCustomerById(id: int, db: Session = Depends(get_db)):
