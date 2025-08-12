@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from ..models import Customer
-from .. import schemas
+from models import Customer
+import schemas
 
 def get_all_customers(db: Session):
     return db.query(Customer).all()

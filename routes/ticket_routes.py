@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from .. import schemas, database
-from ..controllers import ticket_controllers
+
+import database
+import schemas
+from controllers import ticket_controllers
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
 

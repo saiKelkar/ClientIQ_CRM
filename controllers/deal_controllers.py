@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from ..models import Deal
-from .. import schemas
+from models import Deal
+import schemas
 
 def get_all_deals(db: Session):
     return db.query(Deal).all()

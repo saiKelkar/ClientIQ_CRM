@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from .. import schemas, database
-from ..controllers import invoice_controllers
+
+import database
+import schemas
+from controllers import invoice_controllers
 
 router = APIRouter(prefix="/invoices", tags=["Invoices"])
 

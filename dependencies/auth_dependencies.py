@@ -1,7 +1,7 @@
 from fastapi import Request, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from .. import models, database
-from ..database import redis_client
+import models, database
+from database import redis_client
 
 def get_current_user(request: Request, db: Session = Depends(database.get_db)):
     session_id = request.cookies.get("session_id")

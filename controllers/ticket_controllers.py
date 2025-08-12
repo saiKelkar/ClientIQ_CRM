@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from ..models import Ticket
-from .. import schemas
+from models import Ticket
+import schemas
 
 def get_all_tickets(db: Session):
     return db.query(Ticket).all()

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from .. import schemas, database
-from ..controllers import deal_controllers
+
+import database
+import schemas
+from controllers import deal_controllers
 
 router = APIRouter(prefix="/deals", tags=["Deals"])
 

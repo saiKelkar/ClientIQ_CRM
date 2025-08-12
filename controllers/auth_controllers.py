@@ -1,12 +1,14 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Request
-from .. import schema, models
-from ..utils.hashing import hash_password, verify_password
+
+import models
+import schemas
+from utils.hashing import hash_password, verify_password
 import uuid
 from fastapi.responses import JSONResponse
-from ..database import redis_client
+from database import redis_client
 
-def signup(request: schema.UserCreate, db: Session):
+def signup(request: schemas.UserCreate, db: Session):
     user = db.query(models.User).filter(models.User.email == request.email).first()
     if user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
@@ -17,7 +19,7 @@ def signup(request: schema.UserCreate, db: Session):
     db.refresh(new_user)
     return new_user
 
-def login(request: schema.UserLogin, db: Session):
+def login(request: schemas.UserLogin, db: Session):
     user = db.query(models.User).filter(models.User.email == request.email).first()
     if not user or not verify_password(request.password, user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")

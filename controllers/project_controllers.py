@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from ..models import Project
-from .. import schemas
+from models import Project
+import schemas
 
 def get_all_projects(db: Session):
     return db.query(Project).all()

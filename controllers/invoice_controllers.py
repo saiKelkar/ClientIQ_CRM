@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from ..models import Invoice
-from .. import schemas
+from models import Invoice
+import schemas
 
 def get_all_invoices(db: Session):
     return db.query(Invoice).all()
