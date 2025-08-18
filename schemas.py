@@ -80,11 +80,14 @@ class ProjectCreate(BaseModel):
 
 class ProjectResponse(ProjectCreate):
     id: int
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
 
     class Config:
         from_attributes = True
+        json_encoders = {
+            Decimal: float
+        }
 
 # Tickets
 class TicketStage(str, Enum):

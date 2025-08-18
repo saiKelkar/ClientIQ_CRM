@@ -20,7 +20,7 @@ export default function AuthPage({ setIsAuthenticated, setRole }: AuthPageProps)
     const navigate = useNavigate()
 
     useEffect(() => {
-    fetch("http://127.0.0.1:8000/auth/dashboard", {
+    fetch("http://localhost:8000/auth/dashboard", {
       credentials: "include",
     })
       .then(async res => {
@@ -42,8 +42,9 @@ export default function AuthPage({ setIsAuthenticated, setRole }: AuthPageProps)
 
         try {
         const url = mode === "login" 
-            ? "http://127.0.0.1:8000/auth/login" 
-            : "http://127.0.0.1:8000/auth/signup"
+            ? "http://localhost:8000/auth/login" 
+            : "http://localhost:8000/auth/signup"
+            
 
         const body: any = { email, password }
         if (mode === "signup") {
@@ -58,12 +59,14 @@ export default function AuthPage({ setIsAuthenticated, setRole }: AuthPageProps)
             credentials: "include",
         })
 
+        const data = await res.json() 
         if (!res.ok) {
-            const errData = await res.json()
-            throw new Error(errData.detail || "Something went wrong")
+            const errorMessage =
+              typeof data.detail === "string"
+                ? data.detail
+                : JSON.stringify(data.detail); // convert object to string
+            throw new Error(errorMessage);
         }
-
-        const data = await res.json()
 
         if (mode === "login") {
             setIsAuthenticated(true)

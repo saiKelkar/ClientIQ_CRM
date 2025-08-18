@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from websocket_manager import manager
+from controllers.websocket_manager import manager
 from models import Project
 import schemas
 
@@ -25,7 +25,11 @@ async def create_project(project_data: schemas.ProjectCreate, db: Session):
         "data": {
             "id": new_project.id,
             "name": new_project.name,
-            "description": new_project.description
+            "customer_id": new_project.customer_id,
+            "status": new_project.status,
+            "budget": float(new_project.budget) if new_project.budget is not None else None,
+            "start_date": str(new_project.start_date) if new_project.start_date else None,
+            "end_date": str(new_project.end_date) if new_project.end_date else None
         }
     })
     return new_project

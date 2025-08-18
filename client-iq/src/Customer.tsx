@@ -13,7 +13,7 @@ interface Customer {
 export default function Customers() {
 
     const [skip, setSkip] = useState(0)
-    const [limit, setLimit] = useState(10)
+    const [limit, _setLimit] = useState(10)
 
     const [customers, setCustomers] = useState<Customer[]>([])
     const [loading, setLoading] = useState(true)
