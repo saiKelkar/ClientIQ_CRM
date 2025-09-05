@@ -1,20 +1,17 @@
 from fastapi import FastAPI, WebSocket
-from routes import auth_routes, customer_routes, project_routes, deal_routes, invoice_routes, ticket_routes
+from routes import auth_routes, customer_routes, contact_routes, lead_routes, transaction_routes
 from fastapi.middleware.cors import CORSMiddleware
 from controllers.websocket_manager import manager
 
-app = FastAPI()
+from database import Base, engine
 
-origins = [
-    "http://127.0.0.1:3000",
-    "http://localhost:3000",
-    "http://frontend:3000",
-    "http://frontend:80"
-]
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,7 +32,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
 app.include_router(auth_routes.router)
 app.include_router(customer_routes.router)
-app.include_router(project_routes.router)
-app.include_router(deal_routes.router)
-app.include_router(ticket_routes.router)
-app.include_router(invoice_routes.router)
+app.include_router(contact_routes.router)
+app.include_router(lead_routes.router)
+app.include_router(transaction_routes.router)
