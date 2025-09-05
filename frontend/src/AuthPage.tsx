@@ -1,102 +1,87 @@
 import React, { useState, useEffect, type FormEvent } from "react"
 import { useNavigate } from "react-router-dom"
+import { loginUser, signupUser, getDashboard } from "./Api/api"
 
 type Role = "admin" | "staff"
 
 interface AuthPageProps {
-    setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>
-    setRole: React.Dispatch<React.SetStateAction<Role>>
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>
+  setRole: React.Dispatch<React.SetStateAction<Role>>
 }
 
-export default function AuthPage({ setIsAuthenticated, setRole }: AuthPageProps) {
-    const [mode, setMode] = useState<"login" | "signup">("login")
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [role, setLocalRole] = useState<Role>("staff")
-    const [error, setError] = useState<string | null>(null)
-    const [loading, setLoading] = useState(false)
+export const getDashboard = async () => {
+  const res = await api.get<UserResponse>("/auth/dashboard")
+  return res.data 
+}
 
-    const navigate = useNavigate()
+export default function AuthPage({
+  setIsAuthenticated,
+  setRole,
+}: AuthPageProps) {
+  const [mode, setMode] = useState<"login" | "signup">("login")
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [role, setLocalRole] = useState<Role>("staff")
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
-    useEffect(() => {
-    fetch("http://localhost:8000/auth/dashboard", {
-      credentials: "include",
-    })
-      .then(async res => {
-        if (res.ok) {
-          const data = await res.json()
-          setIsAuthenticated(true)
-          if (data.role) setRole(data.role)
-          navigate("/dashboard")
-        }
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    getDashboard()
+      .then((data) => {
+        setIsAuthenticated(true)
+        if (data.role) setRole(data.role)
+        navigate("/dashboard")
       })
       .catch(() => setIsAuthenticated(false))
-    }, [navigate, setIsAuthenticated, setRole])
+  }, [navigate, setIsAuthenticated, setRole])
 
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
-    async function handleSubmit(e: FormEvent) {
-        e.preventDefault()
-        setLoading(true)
-        setError(null)
-
-        try {
-        const url = mode === "login" 
-            ? "http://localhost:8000/auth/login" 
-            : "http://localhost:8000/auth/signup"
-            
-
-        const body: any = { email, password }
-        if (mode === "signup") {
-            body.name = name
-            body.role = role
-        }
-
-        const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-            credentials: "include",
-        })
-
-        const data = await res.json() 
-        if (!res.ok) {
-            const errorMessage =
-              typeof data.detail === "string"
-                ? data.detail
-                : JSON.stringify(data.detail); // convert object to string
-            throw new Error(errorMessage);
-        }
-
-        if (mode === "login") {
-            setIsAuthenticated(true)
-            if (data.role) setRole(data.role)
-            navigate("/dashboard")
-        } else {
-            setMode("login")
-            alert("Signup successful! Please login.")
-        }
-      } catch (err: any) {
-          setError(err.message)
-      } finally {
-          setLoading(false)
+    try {
+      if (mode === "login") {
+        const res = await loginUser({ email, password })
+        setIsAuthenticated(true)
+        if (res.data.role) setRole(res.data.role)
+        navigate("/dashboard")
+      } else {
+        await signupUser({ name, email, password, role })
+        setMode("login")
+        alert("Signup successful! Please login.")
       }
+    } catch (err: any) {
+      setError(err.response?.data?.detail || err.message)
+    } finally {
+      setLoading(false)
     }
-    
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white shadow rounded p-8 w-full max-w-md">
         <div className="flex mb-6">
           <button
-            className={`flex-1 py-2 ${mode === "login" ? "border-b-2 border-blue-600 font-semibold" : "text-gray-500"}`}
+            className={`flex-1 py-2 ${
+              mode === "login"
+                ? "border-b-2 border-blue-600 font-semibold"
+                : "text-gray-500"
+            }`}
             onClick={() => setMode("login")}
             type="button"
           >
             Login
           </button>
           <button
-            className={`flex-1 py-2 ${mode === "signup" ? "border-b-2 border-blue-600 font-semibold" : "text-gray-500"}`}
+            className={`flex-1 py-2 ${
+              mode === "signup"
+                ? "border-b-2 border-blue-600 font-semibold"
+                : "text-gray-500"
+            }`}
             onClick={() => setMode("signup")}
             type="button"
           >
@@ -105,13 +90,12 @@ export default function AuthPage({ setIsAuthenticated, setRole }: AuthPageProps)
         </div>
 
         <form onSubmit={handleSubmit}>
-
           {mode === "signup" && (
             <input
               type="text"
               placeholder="Name"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               className="w-full mb-4 px-3 py-2 border rounded"
               required
             />
@@ -121,7 +105,7 @@ export default function AuthPage({ setIsAuthenticated, setRole }: AuthPageProps)
             type="email"
             placeholder="Email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full mb-4 px-3 py-2 border rounded"
             required
           />
@@ -130,7 +114,7 @@ export default function AuthPage({ setIsAuthenticated, setRole }: AuthPageProps)
             type="password"
             placeholder="Password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full mb-4 px-3 py-2 border rounded"
             required
           />
@@ -170,9 +154,13 @@ export default function AuthPage({ setIsAuthenticated, setRole }: AuthPageProps)
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading 
-                ? (mode === "login" ? "Logging in..." : "Signing up...") 
-                : (mode === "login" ? "Login" : "Signup")}
+            {loading
+              ? mode === "login"
+                ? "Logging in..."
+                : "Signing up..."
+              : mode === "login"
+              ? "Login"
+              : "Signup"}
           </button>
         </form>
       </div>
