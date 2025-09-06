@@ -1,169 +1,94 @@
-import { useState, useEffect, type FormEvent } from "react"
-
-interface Customer {
-  id: number
-  name: string
-  email: string
-  phone?: string
-  company?: string
-  created_at?: string
-  updated_at?: string
-}
+import { useState, useEffect } from "react";
+import Sidebar from "./Sidebar";
+import Topbar from "./Topbar";
+import { getCustomers } from "./Api/api";
+import type { CustomerResponse } from "./Api/types";
 
 export default function Customers() {
+  const [customers, setCustomers] = useState<CustomerResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [skip, setSkip] = useState(0);
+  const limit = 10;
+  const [currentScreen] = useState<string>("Customers");
+  const role: "admin" | "staff" = "staff"; // you can adjust if needed
 
-    const [skip, setSkip] = useState(0)
-    const [limit, _setLimit] = useState(10)
-
-    const [customers, setCustomers] = useState<Customer[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [phone, setPhone] = useState("")
-    const [company, setCompany] = useState("")
-    const [formError, setFormError] = useState<string | null>(null)
-    const [formLoading, setFormLoading] = useState(false)
-
-    async function fetchCustomers() {
-        try {
-        setLoading(true);
-        const res = await fetch(`http://127.0.0.1:8000/customers/?skip=${skip}&limit=${limit}`)
-        if (!res.ok) throw new Error("Failed to fetch customers")
-        const data = await res.json()
-        setCustomers(data)
-        setError(null)
-        } catch (err: any) {
-        setError(err.message)
-        } finally {
-        setLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        fetchCustomers()
-    }, [skip, limit])
-
-    function nextPage() {
-        setSkip(prev => prev + limit);
-    }
-
-    function prevPage() {
-        setSkip(prev => Math.max(prev - limit, 0));
-    }
-
-    async function handleAddCustomer(e:FormEvent) {
-        e.preventDefault()
-        setFormLoading(true)
-        setFormError(null)
-
-    if (!name || !email) {
-      setFormError("Name and Email are required");
-      setFormLoading(false);
-      return;
-    }
-
+  async function fetchCustomers() {
     try {
-      const res = await fetch("http://127.0.0.1:8000/customers/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, company }),
-      });
-
-    if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.detail || "Failed to add customer")
-    }
-
-    const newCustomer = await res.json()
-
-    setCustomers(prev => [...prev, newCustomer])
-
-    setName("")
-    setEmail("")
-    setPhone("")
-    setCompany("")
+      setLoading(true);
+      const res = await getCustomers({ skip, limit });
+      setCustomers(res.data);
+      setError(null);
     } catch (err: any) {
-        setFormError(err.message)
+      setError(err.message || "Failed to fetch customers");
     } finally {
-        setFormLoading(false)
+      setLoading(false);
     }
-    }
+  }
 
-  if (loading) return <div>Loading customers...</div>
-  if (error) return <div>Error: {error}</div>
+  useEffect(() => {
+    fetchCustomers();
+  }, [skip]);
+
+  const nextPage = () => setSkip((prev) => prev + limit);
+  const prevPage = () => setSkip((prev) => Math.max(prev - limit, 0));
 
   return (
-    <>
-    <div className="p-6">
-      <form
-        onSubmit={handleAddCustomer}
-        className="mb-6 bg-white p-4 rounded shadow max-w-md"
-      >
-        <h2 className="text-xl font-semibold mb-4">Add New Customer</h2>
+    <div>
+      <Sidebar setCurrentScreen={() => {}} />
+      <div className="ml-64 flex flex-col h-screen">
+        {/* Topbar */}
+        <div className="fixed top-0 right-0 left-64 h-16 bg-gray-200 flex justify-between items-center px-6 shadow-[0_2px_4px_0_rgba(0,0,0,0.1)]">
+          <Topbar currentScreen={currentScreen} role={role} />
+        </div>
 
-        {formError && <div className="mb-4 text-red-600">{formError}</div>}
+        {/* Main Content */}
+        <div className="pt-20 p-6 space-y-6">
+          {loading && <div>Loading customers...</div>}
+          {error && <div className="text-red-600">Error: {error}</div>}
 
-        <input
-          type="text"
-          placeholder="Name*"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          className="w-full mb-3 px-3 py-2 border rounded"
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email*"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          className="w-full mb-3 px-3 py-2 border rounded"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Phone"
-          value={phone}
-          onChange={e => setPhone(e.target.value)}
-          className="w-full mb-3 px-3 py-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Company"
-          value={company}
-          onChange={e => setCompany(e.target.value)}
-          className="w-full mb-3 px-3 py-2 border rounded"
-        />
+          {!loading && !error && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {customers.map((customer) => (
+                  <div key={customer.id} className="bg-white shadow rounded p-4">
+                    <h3 className="text-lg font-semibold">
+                      {customer.contact.first_name} {customer.contact.last_name}
+                    </h3>
+                    <p className="text-sm text-gray-600">{customer.contact.email}</p>
+                    <p className="text-sm">{customer.contact.phone || "No phone"}</p>
+                    <p className="text-sm italic text-gray-500">
+                      Converted by: {customer.converted_by_staff.name}
+                    </p>
+                    <p className="text-sm italic text-gray-400">
+                      {customer.closing_date
+                        ? new Date(customer.closing_date).toLocaleDateString()
+                        : "No closing date"}
+                    </p>
+                  </div>
+                ))}
+              </div>
 
-        <button
-          type="submit"
-          disabled={formLoading}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {formLoading ? "Adding..." : "Add Customer"}
-        </button>
-      </form>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {customers.map((customer) => (
-          <div
-            key={customer.id}
-            className="bg-white shadow rounded p-4 hover:shadow-lg transition-shadow"
-          >
-            <h3 className="text-lg font-semibold">{customer.name}</h3>
-            <p className="text-sm text-gray-600">{customer.email}</p>
-            <p className="text-sm">{customer.phone || "No phone"}</p>
-            <p className="text-sm italic text-gray-500">{customer.company || "No company"}</p>
-            <p className="text-sm italic text-gray-250">{customer.created_at ? new Date(customer.created_at).toLocaleString() : "N/A" }</p>
-            <p className="text-sm italic text-gray-250">{customer.updated_at ? new Date(customer.updated_at).toLocaleString() : "N/A" }</p>
-          </div>
-        ))}
-        <button onClick={prevPage} disabled={skip === 0}>Previous</button>
-        <button onClick={nextPage} disabled={customers.length < limit}>Next</button>
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={prevPage}
+                  disabled={skip === 0}
+                  className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={nextPage}
+                  disabled={customers.length < limit}
+                  className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
-    
-    </>
   );
 }

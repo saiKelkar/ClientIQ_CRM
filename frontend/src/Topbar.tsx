@@ -8,7 +8,7 @@ export default function Topbar({ currentScreen, role }: TopbarProps) {
     currentScreen.charAt(0).toUpperCase() + currentScreen.slice(1)
 
   return (
-    <div className="flex justify-between items-center bg-gray-200 text-gray-900 px-6 h-16 shadow-sm">
+    <div className="flex justify-between items-center px-6 h-16">
       <div className="text-lg font-semibold flex items-center space-x-2">
         <span>{formattedScreen}</span>
         <span className="text-gray-500">/</span>

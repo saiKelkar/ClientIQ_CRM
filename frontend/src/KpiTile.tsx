@@ -4,7 +4,7 @@ type KpiTileProps = {
     className?: string
 }
 
-function KpiTile({ title, value, className = "" }: KpiTileProps) {
+export default function KpiTile({ title, value, className = "" }: KpiTileProps) {
     return (
         <div className={`bg-white shadow rounded p-4 flex flex-col items-center justify-center text-center ${className}`}>
             <div className="text-gray-500 text-sm">{ title }</div>
@@ -12,5 +12,3 @@ function KpiTile({ title, value, className = "" }: KpiTileProps) {
         </div>
     )
 }
-
-export default KpiTile

@@ -1,78 +1,47 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
-import { useState, useEffect } from "react"
-import Sidebar from "./Sidebar"
-import Topbar from "./Topbar"
-import Dashboard from "./Dashboard"
-import Customers from "./Customer"
-import Contacts from "./Contact"
-import Leads from "./Lead"
-import Transactions from "./Transaction"
-import AuthPage from "./AuthPage"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState } from "react";
+import AuthPage from "./AuthPage";
+import Dashboard from "./Dashboard";
+import Contact from "./Contact";
+import Customer from "./Customer";
+import Leads from "./Lead";
+import Transactions from "./Transaction";
+import API from "./Api/api";
 
-type Role = "admin" | "staff"
+type Role = "admin" | "staff";
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState("Dashboard")
-  const [role, setRole] = useState<Role>("admin")
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  console.log("API BaseURL:", API.defaults?.baseURL);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token")
-    if (token) {
-      setIsAuthenticated(true)
-    }
-  }, [])
-
-  const renderWithLayout = (component: JSX.Element) => (
-    <div>
-      <Sidebar setCurrentScreen={setCurrentScreen} />
-      <div className="ml-64 flex flex-col h-screen">
-        <div className="fixed top-0 right-0 left-64 h-16 bg-gray-200 flex justify-between items-center px-6">
-          <Topbar currentScreen={currentScreen} role={role} />
-        </div>
-        <main
-          className="mt-16 p-6 overflow-auto flex-grow bg-gray-50"
-          style={{ height: "calc(100vh - 4rem)" }}
-        >
-          {component}
-        </main>
-      </div>
-    </div>
-  )
+  const [_isAuthenticated, setIsAuthenticated] = useState(false);
+  const [role, setRole] = useState<Role>("staff");
 
   return (
     <Router>
       <Routes>
-        <Route
-          path="/"
-          element={<AuthPage setIsAuthenticated={setIsAuthenticated} setRole={setRole} />}
+        {/* Authentication */}
+        <Route path="/" element={<AuthPage
+              setIsAuthenticated={setIsAuthenticated}
+              setRole={setRole} 
+            />
+          }
         />
 
-        <Route
-          path="/dashboard"
-          element={isAuthenticated ? renderWithLayout(<Dashboard />) : <Navigate to="/" />}
-        />
+        {/* Dashboard */}
+        <Route path="/dashboard" element={<Dashboard />} />
 
-        <Route
-          path="/contacts"
-          element={isAuthenticated ? renderWithLayout(<Contacts />) : <Navigate to="/" />}
-        />
+        {/* Contacts */}
+        <Route path="/contacts" element={<Contact role={role} />} />
 
-        <Route
-          path="/customers"
-          element={isAuthenticated ? renderWithLayout(<Customers />) : <Navigate to="/" />}
-        />
+        {/* Customers */}
+        <Route path="/customers" element={<Customer />} />
 
-        <Route
-          path="/leads"
-          element={isAuthenticated ? renderWithLayout(<Leads />) : <Navigate to="/" />}
-        />
+        {/* Leads */}
+        <Route path="/leads" element={<Leads />} />
 
-        <Route
-          path="/transactions"
-          element={isAuthenticated ? renderWithLayout(<Transactions />) : <Navigate to="/" />}
-        />
+        {/* Transactions */}
+        <Route path="/transactions" element={<Transactions />} />
       </Routes>
     </Router>
-  )
+  );
 }
